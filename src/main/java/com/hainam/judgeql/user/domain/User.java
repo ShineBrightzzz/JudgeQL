@@ -28,8 +28,8 @@ public class User {
     private String username;
 
     @Column(name = "given_name", nullable = false)
-    private String givenName;
-
+    private String givenName;    
+    
     @Column(name = "email", nullable = false)
     private String email;
 

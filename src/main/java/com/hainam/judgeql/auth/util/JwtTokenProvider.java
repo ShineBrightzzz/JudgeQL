@@ -24,7 +24,18 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration:3600}")
     private long jwtExpirationInSec;
 
+    @Value("${jwt.refresh-expiration:604800}") // 7 days by default
+    private long refreshTokenExpirationInSec;
+
     public String generateToken(User user) {
+        return generateToken(user, jwtExpirationInSec);
+    }
+
+    public String generateRefreshToken(User user) {
+        return generateToken(user, refreshTokenExpirationInSec);
+    }
+
+    private String generateToken(User user, long expirationInSec) {
         Instant now = Instant.now();
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", user.getId().toString());
@@ -39,8 +50,19 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(java.util.Date.from(now))
-                .setExpiration(java.util.Date.from(now.plus(jwtExpirationInSec, ChronoUnit.SECONDS)))
+                .setExpiration(java.util.Date.from(now.plus(expirationInSec, ChronoUnit.SECONDS)))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public Map<String, Object> validateTokenAndGetClaims(String token) {
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        SecretKeySpec key = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
+
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

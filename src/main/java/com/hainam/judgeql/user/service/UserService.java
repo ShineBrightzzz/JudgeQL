@@ -2,6 +2,7 @@ package com.hainam.judgeql.user.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -31,6 +32,10 @@ public class UserService {
 
     public Optional<User> getUserByEmail(String email){
         return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> getUserById(UUID id) {
+        return userRepository.findById(id);
     }
 
     public boolean existsByEmail(String email){
