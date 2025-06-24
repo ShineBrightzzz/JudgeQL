@@ -1,6 +1,5 @@
 package com.hainam.judgeql.shared.response;
 
-import org.springframework.data.jpa.repository.query.Meta;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.hainam.judgeql.user.domain.User;
 import com.hainam.judgeql.user.dto.response.UserResponse;
 import com.hainam.judgeql.user.mapper.UserMapper;
 import com.hainam.judgeql.user.repository.UserRepository;
@@ -25,6 +26,14 @@ public class UserService {
                 .stream()
                 .map(UserMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public boolean existsByEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
+
+    public User save(User user){
+        return userRepository.save(user);
     }
     
 }
