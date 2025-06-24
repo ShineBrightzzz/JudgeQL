@@ -45,10 +45,10 @@ public class User {
     @Column(name = "picture_url")
     private String pictureUrl;
 
-    @Column(name = "email_verified")
+    @Column(name = "email_verified", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean emailVerified;
 
-    @Column(name = "is_admin")
+    @Column(name = "is_admin", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isAdmin;
 
     @Column(name = "verification_token")

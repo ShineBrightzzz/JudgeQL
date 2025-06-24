@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hainam.judgeql.auth.dto.request.LoginRequest;
 import com.hainam.judgeql.auth.dto.request.RegisterRequest;
 import com.hainam.judgeql.auth.dto.response.AuthResponse;
 import com.hainam.judgeql.auth.service.AuthService;
@@ -21,6 +22,13 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginRequest loginRequest){
+        AuthResponse response = authService.login(loginRequest);
+    return ResponseEntity
+            .ok()
+            .body(ApiResponse.success(response, "Đăng kí thành công"));
+    }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<?>> register(@RequestBody RegisterRequest registerRequest){
