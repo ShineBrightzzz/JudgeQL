@@ -15,7 +15,7 @@ import com.hainam.judgeql.user.service.UserService;
 
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
 
