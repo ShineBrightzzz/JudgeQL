@@ -31,19 +31,19 @@ public class AuthService {    private final UserService userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.refreshTokenService = refreshTokenService;
-    }    @Transactional
+    }    
+    
+    
+    @Transactional
     public AuthResponse login(LoginRequest loginRequest){
         User user = userService.getUserByEmail(loginRequest.getEmail())
-        .orElseThrow(() -> new EmailNotFoundException());
+            .orElseThrow(() -> new EmailNotFoundException());
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException();
         }
 
         String accessToken = jwtTokenProvider.generateToken(user);
-        
-        // Revoke all existing refresh tokens
-        refreshTokenService.revokeAllUserTokens(user);
         
         // Create new refresh token
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
@@ -52,7 +52,10 @@ public class AuthService {    private final UserService userService;
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken.getToken());
         return response;
-    }    @Transactional
+    }    
+    
+    
+    @Transactional
     public AuthResponse register(RegisterRequest registerRequest){
         if(userService.existsByEmail(registerRequest.getEmail())){
             throw new EmailAlreadyExistsException();
@@ -63,6 +66,9 @@ public class AuthService {    private final UserService userService;
         
         String accessToken = jwtTokenProvider.generateToken(savedUser);
         
+        // Revoke all existing refresh tokens
+        refreshTokenService.revokeAllUserTokens(savedUser);
+        
         // Create new refresh token
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser);
         
@@ -70,7 +76,9 @@ public class AuthService {    private final UserService userService;
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken.getToken());
         return response;
-    }    @Transactional
+    }    
+    
+    @Transactional
     public AuthResponse refresh(RefreshTokenRequest refreshRequest) {
         String requestRefreshToken = refreshRequest.getRefreshToken();
         
@@ -80,13 +88,19 @@ public class AuthService {    private final UserService userService;
         User user = refreshToken.getUser();
         String newAccessToken = jwtTokenProvider.generateToken(user);
         
-        // Generate new refresh token
-        refreshTokenService.revokeAllUserTokens(user);
+        // Revoke old refresh token and create new one
+        refreshTokenService.revokeToken(requestRefreshToken);
         RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
         
         AuthResponse response = AuthMapper.toAuthResponse(user);
         response.setAccessToken(newAccessToken);
         response.setRefreshToken(newRefreshToken.getToken());
         return response;
+    }
+    
+    @Transactional
+    public void logout(LogoutRequest logoutRequest) {
+        String refreshToken = logoutRequest.getRefreshToken();
+        refreshTokenService.revokeToken(refreshToken);
     }
 }

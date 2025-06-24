@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hainam.judgeql.auth.dto.request.LoginRequest;
+import com.hainam.judgeql.auth.dto.request.LogoutRequest;
 import com.hainam.judgeql.auth.dto.request.RefreshTokenRequest;
 import com.hainam.judgeql.auth.dto.request.RegisterRequest;
 import com.hainam.judgeql.auth.dto.response.AuthResponse;
@@ -45,5 +46,13 @@ public class AuthController {
         return ResponseEntity
                 .ok()
                 .body(ApiResponse.success(response, "Refresh token thành công"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<?>> logout(@RequestBody LogoutRequest logoutRequest) {
+        authService.logout(logoutRequest);
+        return ResponseEntity
+                .ok()
+                .body(ApiResponse.success(null, "Đăng xuất thành công"));
     }
 }
