@@ -9,9 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetaPage {
+public class MetaPage {    
     private int page;
     private int size;
+    private String sort;
+    private String sortDir;
     private long totalElements;
     private int totalPages;
     private Boolean first;
