@@ -1,8 +1,9 @@
 package com.hainam.judgeql.testcase.domain;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.hainam.judgeql.shared.domain.BaseEntity;
 import com.hainam.judgeql.shared.util.JsonConverter;
 
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "testcases")
+@Table(name = "test_cases")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,10 +28,9 @@ public class TestCase extends BaseEntity {
     @Column(name = "question_id", nullable = false)
     private UUID questionId;    @Column(name = "setup_sql", columnDefinition = "TEXT")
     private String setupSql;
-    
-    @Column(name = "expected_output", columnDefinition = "JSONB")
+      @Column(name = "expected_output", columnDefinition = "TEXT")
     @Convert(converter = JsonConverter.class)
-    private Object expectedOutput;
+    private List<Map<String, Object>> expectedOutput;
     
     @Column(name = "visible", nullable = false)
     private Boolean visible;

@@ -36,32 +36,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String token = getJwtFromRequest(request);
-            System.out.println("Token from request: " + token);
             
             if (StringUtils.hasText(token)) {                try {
                     byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
                     SecretKey key = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
-                    System.out.println("Secret key created: " + key.getAlgorithm());
                     
                     Claims claims = Jwts.parserBuilder()
                             .setSigningKey(key)
                             .build()
                             .parseClaimsJws(token)
                             .getBody();
-                    System.out.println("Claims parsed successfully: " + claims.toString());
+
                     
                     String username = claims.getSubject();
-                    System.out.println("Username from token: " + username);
+
                     
                     if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                        System.out.println("User loaded: " + userDetails.getUsername());
+
                         
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        System.out.println("Authentication set to security context");
+
                     }
                 } catch (Exception ex) {
                     System.out.println("Error processing token: " + ex.getMessage());

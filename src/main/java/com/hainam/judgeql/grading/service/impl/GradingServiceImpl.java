@@ -142,33 +142,10 @@ public class GradingServiceImpl implements GradingService {
         // Convert TestCase entities to TestCaseGradingRequest
         return testCases.stream()
                 .map(testCase -> {
-                    // Convert the expected output to a List<Map<String, Object>>
-                    List<Map<String, Object>> expectedOutput;
-                    try {
-                        if (testCase.getExpectedOutput() instanceof List) {
-                            @SuppressWarnings("unchecked")
-                            List<Map<String, Object>> castedOutput = (List<Map<String, Object>>) testCase.getExpectedOutput();
-                            expectedOutput = castedOutput;
-                        } else {
-                            // Convert using ObjectMapper if needed
-                            expectedOutput = objectMapper.convertValue(
-                                    testCase.getExpectedOutput(),
-                                    objectMapper.getTypeFactory().constructCollectionType(
-                                            List.class,
-                                            objectMapper.getTypeFactory().constructMapType(
-                                                    Map.class, String.class, Object.class)
-                                    )
-                            );
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        expectedOutput = new ArrayList<>();
-                    }
-                    
                     return TestCaseGradingRequest.builder()
                             .testcaseId(testCase.getId().getMostSignificantBits())
                             .setupSql(testCase.getSetupSql())
-                            .expectedOutput(expectedOutput)
+                            .expectedOutput(testCase.getExpectedOutput())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -360,20 +337,32 @@ public class GradingServiceImpl implements GradingService {
         
         return true;
     }
-    
-    private boolean rowMatches(Map<String, Object> actualRow, Map<String, Object> expectedRow) {
+      private boolean rowMatches(Map<String, Object> actualRow, Map<String, Object> expectedRow) {
         // The expected row might have fewer columns than the actual row (we only check what was specified)
         for (Map.Entry<String, Object> entry : expectedRow.entrySet()) {
             String key = entry.getKey();
             Object expectedValue = entry.getValue();
             
+            // Find case-insensitive matching key in actual row
+            String matchingKey = key;
+            boolean keyFound = false;
+            
+            // Look for the key in a case-insensitive manner
+            for (String actualKey : actualRow.keySet()) {
+                if (actualKey.equalsIgnoreCase(key)) {
+                    matchingKey = actualKey;
+                    keyFound = true;
+                    break;
+                }
+            }
+            
             // Check if the key exists in the actual row
-            if (!actualRow.containsKey(key)) {
+            if (!keyFound) {
                 System.err.println("Column missing in actual result: " + key);
                 return false;
             }
             
-            Object actualValue = actualRow.get(key);
+            Object actualValue = actualRow.get(matchingKey);
             
             // Handle null values
             if (expectedValue == null) {
@@ -433,15 +422,13 @@ public class GradingServiceImpl implements GradingService {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            
-            // Enable PostgreSQL compatibility mode
+              // Enable PostgreSQL compatibility mode
             statement.execute("SET MODE PostgreSQL");
             
             // Configure case sensitivity to match PostgreSQL
             statement.execute("SET IGNORECASE TRUE");
             
             // Enable functions similar to PostgreSQL
-            statement.execute("CREATE ALIAS IF NOT EXISTS current_timestamp FOR \"java.lang.System.currentTimeMillis\"");
             statement.execute("CREATE ALIAS IF NOT EXISTS now FOR \"java.lang.System.currentTimeMillis\"");
             
             // Configure date/time functions
