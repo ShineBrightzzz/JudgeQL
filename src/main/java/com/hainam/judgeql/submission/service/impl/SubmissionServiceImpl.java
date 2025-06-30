@@ -11,6 +11,7 @@ import com.hainam.judgeql.submission.dto.request.SubmissionRequest;
 import com.hainam.judgeql.submission.dto.response.SubmissionResponse;
 import com.hainam.judgeql.submission.mapper.SubmissionMapper;
 import com.hainam.judgeql.submission.repository.SubmissionRepository;
+import com.hainam.judgeql.submission.service.SubmissionProducer;
 import com.hainam.judgeql.submission.service.SubmissionService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -21,12 +22,16 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Autowired
     private SubmissionRepository submissionRepository;
     
+    @Autowired
+    private SubmissionProducer submissionProducer;
+    
     @Override
     public SubmissionResponse createSubmission(SubmissionRequest request, String userId) {
         Submission submission = SubmissionMapper.toEntity(request, userId);
         Submission savedSubmission = submissionRepository.save(submission);
         
-        // TODO: Implement grading service integration in the future
+        // Send the submission to the grading queue for processing
+        submissionProducer.sendToGradingQueue(savedSubmission.getId());
         
         return SubmissionMapper.toResponse(savedSubmission);
     }

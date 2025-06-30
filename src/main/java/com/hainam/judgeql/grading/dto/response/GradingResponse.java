@@ -1,4 +1,4 @@
-package com.hainam.judgeql.grading.dto.request;
+package com.hainam.judgeql.grading.dto.response;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,10 +14,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GradingRequest {    
+public class GradingResponse {
     private UUID submissionId;
-    private String userId;
-    private String questionId;
-    private String userSql;
-    private List<TestCaseGradingRequest> testCases;
+    private String status;
+    private int score;
+    private int passedTestCount;
+    private int totalTestCount;
+    private List<TestCaseResult> testCaseResults;
 }

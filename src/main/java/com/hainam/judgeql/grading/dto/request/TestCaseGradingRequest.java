@@ -1,7 +1,7 @@
 package com.hainam.judgeql.grading.dto.request;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,10 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GradingRequest {    
-    private UUID submissionId;
-    private String userId;
-    private String questionId;
-    private String userSql;
-    private List<TestCaseGradingRequest> testCases;
+public class TestCaseGradingRequest {
+    private Long testcaseId;
+    private String setupSql;
+    private List<Map<String, Object>> expectedOutput;
 }
